@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crud Node JS - MYSQL</title>
+    <style>
+        /* Reset default margin and padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Table Styling */
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4);
+            overflow: hidden;
+            animation: fadeIn 1s ease-in-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        table:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(120deg, rgba(255, 140, 0, 0.1), rgba(255, 140, 0, 0.05));
+            z-index: -1;
+        }
+
+        table th,
+        table td {
+            padding: 14px 22px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            position: relative;
+            z-index: 1;
+        }
+
+        table th {
+            background-color: #ff8c00;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        table td {
+            color: #555;
+            background-color: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        table tr:hover {
+            background-color: #ffbc2d;
+            transform: scale(1.02);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Custom Shadow Color on Hover */
+        table tr:hover td {
+            box-shadow: 0 4px 8px rgba(255, 140, 0, 0.4);
+            border-radius: 8px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Link Styling */
+        a {
+            color: #ff8c00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Form Styling */
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(255, 140, 0, 0.4);
+            width: 50%;
+            animation: slideIn 1s ease;
+            transition: box-shadow 0.3s ease;
+        }
+
+        form:hover {
+            box-shadow: 0 15px 30px rgba(255, 140, 0, 0.6);
+        }
+
+        form label {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        form button {
+            background-color: #ff8c00;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #ff7043;
+        }
+
+        /* Custom Alert Styles */
+        .alert {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            z-index: 1000;
+            width: 300px;
+            text-align: center;
+        }
+
+        .alert h3 {
+            margin-bottom: 15px;
+        }
+
+        .alert button {
+            background-color: #ff8c00;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .alert button:hover {
+            background-color: #ff7043;
+        }
+
+        /* Overlay Style */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            table,
+            form {
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            table th,
+            table td {
+                padding: 8px 10px;
+            }
+
+            form input {
+                padding: 8px;
+            }
+
+            form button {
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Daftar User/Pengguna</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nama</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Aksi</th>
+        </tr>
+        <% users.forEach(pengguna => { %>
+            <tr>
+                <td>
+                    <%= pengguna.id %>
+                </td>
+                <td>
+                    <%= pengguna.name %>
+                </td>
+                <td>
+                    <%= pengguna.email %>
+                </td>
+                <td>
+                    <%= pengguna.phone %>
+                </td>
+                <td>
+                    <a href="#" class="edit" data-id="<%= pengguna.id %>">Edit</a>
+                    <a href="#" class="delete" data-id="<%= pengguna.id %>">Hapus</a>
+                </td>
+            </tr>
+        <% }) %>
+    </table>
+
+    <h2>Tambah Pengguna Baru</h2>
+    <form id="add-form" method="POST" action="/add"> <!-- Set action to the correct URL -->
+        <label for="name">Nama:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required><br>
+        <label for="phone">Telephone:</label>
+        <input type="text" name="phone" id="phone" required><br>
+        <button type="submit">Tambah</button>
+    </form>
+
+    <!-- Custom alert for confirmation -->
+    <div class="overlay" id="overlay"></div>
+    <div class="alert" id="alert">
+        <h3 id="alert-message"></h3>
+        <button id="confirm-btn">Ya</button>
+        <button id="cancel-btn">Batal</button>
+    </div>
+
+    <script>
+        const overlay = document.getElementById('overlay');
+        const alertBox = document.getElementById('alert');
+        const alertMessage = document.getElementById('alert-message');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        let actionUrl = '';
+
+        // Function to show the alert
+        function showAlert(message, url) {
+            alertMessage.innerText = message;
+            actionUrl = url;
+            overlay.style.display = 'block';
+            alertBox.style.display = 'block';
+        }
+
+        // Event listeners for Edit and Delete links
+        document.querySelectorAll('.edit').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                showAlert("Apakah Anda yakin untuk mengedit data ini?", `/edit/${this.dataset.id}`);
+            });
+        });
+
+        document.querySelectorAll('.delete').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-id');
+                console.log(`Attempting to delete user with ID: ${id}`);
+
+                showAlert("Apakah Anda yakin untuk menghapus pengguna ini?", `/delete/${id}`);
+            });
+        });
+
+        // Event listener for Add form submission
+        document.getElementById('add-form').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent default form submission
+            showAlert("Apakah Anda yakin untuk menambah pengguna ini?", this.action); // Show alert
+        });
+
+        // Confirm button action
+        confirmBtn.addEventListener('click', function () {
+            if (actionUrl.includes('/add')) {
+                const formData = new FormData(document.getElementById('add-form'));
+                fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload(); // Reload the page to see the updated users
+                    } else {
+                        return response.text().then(text => {
+                            console.error('Error:', text);
+                            alert(`Failed to add user: ${text}`);
+                        });
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to add user.');
+                });
+            } else {
+                // For Edit and Delete actions
+                window.location.href = actionUrl; // Redirect to the action URL
+            }
+        });
+
+        // Cancel button action
+        cancelBtn.addEventListener('click', function () {
+            overlay.style.display = 'none';
+            alertBox.style.display = 'none';
+        });
+    </script>
+</body>
+
+</html>
